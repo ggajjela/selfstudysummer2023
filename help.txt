@@ -32,3 +32,13 @@
   do
       set -- $user;mc config host add $1 http://172.31.61.121:9000 $1 $2
   done
+
+
+
+  # PUT objects
+  mc cp ./objects/*.jpg lily/lily
+  mc ls lily/lily
+  mc ls lily/lily | wc -l
+  mc cp ./objects/*.jpg lily/khanhlinh
+  mc cp ./objects/*.jpg khanhlinh/khanhlinh
+  mc cp ./objects/*.jpg gayathri/gayathri
