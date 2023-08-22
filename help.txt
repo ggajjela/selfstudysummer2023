@@ -34,7 +34,6 @@
   done
 
 
-
   # PUT objects
   mc cp ./objects/*.jpg lily/lily
   mc ls lily/lily
