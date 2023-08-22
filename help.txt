@@ -1,0 +1,34 @@
+  # List IAM Policies
+  mc admin policy list mys3
+  mc admin policy info mys3 readwrite
+
+  # Add IAM Users
+  mc admin user add mys3 lily lilykim1
+  mc admin user add mys3 gayathri gayathri
+  mc admin user add mys3 khanhlinh khanhlinh
+
+  # Create IAM Policies
+  mc admin user list mys3
+  mc admin policy create mys3 bucketReadWrite ./summer_proj2023/bucketReadWrite.json
+  mc admin policy list mys3
+  mc admin policy info mys3 bucketReadWrite
+
+  # List IAM Users (test)
+  mc admin user list mys3
+  mc admin user list mys3 > user.txt
+  vi user.txt
+  cat user.tzt
+
+  # Attach IAM Policies to Users
+  for user in `cat user.txt`
+  do
+      mc admin policy attach mys3 bucketReadWrite --user $user
+  done
+	
+  mc admin user list mys3
+
+  # Create Aliases
+  for user in "lily lilykim1" "gayathri gayathri" "khanhlinh khanhlinh"
+  do
+      set -- $user;mc config host add $1 http://172.31.61.121:9000 $1 $2
+  done
