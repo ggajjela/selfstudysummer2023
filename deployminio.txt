@@ -1,0 +1,91 @@
+List block devices (assume this ia a lot before constructing a house):
+----------------------------------------------------------------------
+root@:~# lsblk
+NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINTS
+sdb      8:16   0 238.5G  0 disk 
+sdc      8:32   0  10.9T  0 disk 
+sdd      8:48   0  10.9T  0 disk 
+root@:~#
+root@:~# 
+
+Create filesystem on disks (building house):
+--------------------------------------------
+https://min.io/docs/minio/linux/operations/install-deploy-manage/deploy-minio-multi-node-multi-drive.html 
+root@:~# mkfs.xfs -f /dev/sdc -L DISK1
+meta-data=/dev/sdc               isize=512    agcount=11, agsize=268435455 blks
+         =                       sectsz=4096  attr=2, projid32bit=1
+         =                       crc=1        finobt=1, sparse=1, rmapbt=0
+         =                       reflink=1    bigtime=0 inobtcount=0
+data     =                       bsize=4096   blocks=2929721344, imaxpct=5
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0, ftype=1
+log      =internal log           bsize=4096   blocks=521728, version=2
+         =                       sectsz=4096  sunit=1 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+root@:~# 
+root@:~# 
+root@:~# mkfs.xfs -f /dev/sdd -L DISK2
+meta-data=/dev/sdd               isize=512    agcount=11, agsize=268435455 blks
+         =                       sectsz=4096  attr=2, projid32bit=1
+         =                       crc=1        finobt=1, sparse=1, rmapbt=0
+         =                       reflink=1    bigtime=0 inobtcount=0
+data     =                       bsize=4096   blocks=2929721344, imaxpct=5
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0, ftype=1
+log      =internal log           bsize=4096   blocks=521728, version=2
+         =                       sectsz=4096  sunit=1 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+root@:~# 
+root@:~# 
+
+Mount filesystem to mointpoint (moving into house):
+-----------------------------------------------------
+a) Manual mount: mount -t typeoffilesystem device mountpoint
+   mount -t xfs /dev/sdc /minio/disk1
+   mount -t xfs /dev/sdd /minio/disk2
+
+b) Auto mount: mount filesystems on machine reboot
+   root@:~# cat /etc/fstab 
+# /etc/fstab: static file system information.
+#
+# Use 'blkid' to print the universally unique identifier for a
+# device; this may be used with UUID= as a more robust way to name devices
+# that works even if disks are added and removed. See fstab(5).
+#
+# <file system> <mount point>   <type>  <options>       <dump>  <pass>
+
+LABEL=DISK1      /minio/disk1     xfs     defaults,noatime  0       2
+LABEL=DISK2      /minio/disk2     xfs     defaults,noatime  0       2
+root@:~# 
+
+Check mounted filesystems (df -kh):
+----------------------------------
+root@:~# df -kh
+Filesystem                                        Size  Used Avail Use% Mounted on
+/dev/sda1                                         511M   15M  497M   3% /boot/efi
+tmpfs                                             3.2G   72K  3.2G   1% /run/user/128
+tmpfs                                             3.2G   56K  3.2G   1% /run/user/0
+tmpfs                                             3.2G   64K  3.2G   1% /run/user/1001
+
+To mount all filesystems from /etc/fstab:
+----------------------------------------
+root@:~# mount -a
+
+Verify if newly created filesystems are mounted:
+------------------------------------------------
+root@:~# df -kh
+Filesystem                                        Size  Used Avail Use% Mounted on
+/dev/sda1                                         511M   15M  497M   3% /boot/efi
+tmpfs                                             3.2G   72K  3.2G   1% /run/user/128
+tmpfs                                             3.2G   56K  3.2G   1% /run/user/0
+tmpfs                                             3.2G   64K  3.2G   1% /run/user/1001
+/dev/sdc                                           11T   78G   11T   1% /minio/disk1
+/dev/sdd                                           11T   78G   11T   1% /minio/disk2
+root@minio-backup:~# 
+
+Create a systemd file to start minio automatically for machine reboots:
+-----------------------------------------------------------------------
+https://blog.min.io/configuring-minio-with-systemd/
+  
+
+  
